@@ -9,7 +9,7 @@ body {
     line-height: 1.6;
     color: #333;
     padding: 20px;
-    background-image: url('Electrric-vehicle.webp');
+    background-image: url('EV-car.jpg');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -28,20 +28,16 @@ body {
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
 }
 
-.maincontainer {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
+.dashboard{
     background-color: rgba(255, 255, 255, 0.95);
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); 
 }
 
 header {
     text-align: center;
     margin-bottom: 30px;
     padding: 20px;
-    /* background-color: rgba(76, 175, 80, 0.1);*/
     background-color: rgba(255, 255, 255, 0.95);
     border-radius: 8px;
 }
@@ -49,6 +45,11 @@ header {
 h1 {
     margin-bottom: 20px;
     color: #2c3e50;
+}
+
+h2 {
+    color: #4CAF50;
+    margin: 15px 15px;
 }
 
 h3 {
@@ -61,7 +62,6 @@ h3 {
     justify-content: center;
     margin: 20px 0;
     flex-wrap: wrap;
-    /*background-color: rgba(255, 255, 255, 0.95);*/
     background-color: transparent;
 }
 
