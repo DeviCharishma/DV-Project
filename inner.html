@@ -184,7 +184,7 @@
               <div id="treemapChart" class="chart-full"></div>
             </div>
             <div class="conceptual-matter">
-              <h3>EV Count by Make and District (Vega-Lite)</h3>
+              <h3>EV Count by Make and District (Altair: Vega-Lite)</h3>
               <p>
                 Treemap visualization showing which manufacturers dominate
                 specific legislative districts, with Tesla maintaining strong
@@ -201,9 +201,7 @@
               <h3>Charging Infrastructure Balance (D3.js Horizontal Diverging Bar Chart)</h3>
               <p>
                 This visualization compares the number of EVs versus charging
-                stations in different ZIP codes. Green bars indicate areas with
-                sufficient charging infrastructure (more stations than EVs),
-                while red bars show areas where charging infrastructure may be
+                stations in different ZIP codes. Red bars show areas where charging infrastructure may be
                 inadequate (more EVs than stations). The length of each bar
                 represents the difference between stations and EVs.
               </p>
@@ -246,10 +244,12 @@
               <div id="altairCorrelationChart" class="chart-full"></div>
             </div>
             <div class="conceptual-matter">
-              <h3>Correlation Matrix (Vega-Lite)</h3>
+              <h3>EV Feature Correlation Matrix (Altair: Vega-Lite)</h3>
               <p>
-                Interactive version of the correlation matrix with tooltips and
-                different visual encoding options.
+                This heatmap reveals key relationships between EV range and geographic distribution. 
+                The strongest correlation (Electric Range ↔ Latitude) suggests climate influences battery performance, 
+                while weaker longitude links may reflect charging infrastructure patterns. 
+                Notably, range shows minimal correlation with itself - a data quirk worth investigating.
               </p>
             </div>
           </div>
@@ -262,8 +262,10 @@
             <div class="conceptual-matter">
               <h3>Range vs Charging Stations (D3.js)</h3>
               <p>
-                D3.js implementation showing only weak relationship between
-                vehicle range and local charging infrastructure density.
+                This visualization reveals two distinct EV market strategies: Tesla and Nissan form opposing clusters, 
+                with Teslas offering longer ranges regardless of local charging density, while Nissan's shorter-range vehicles concentrate near high-infrastructure areas. 
+                Most brands cluster in the 200-300 mile range, suggesting this is becoming the industry standard, 
+                with Rivian as a notable outlier prioritizing extreme range.
               </p>
             </div>
           </div>
