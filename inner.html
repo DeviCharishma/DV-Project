@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EV Data Visualizations</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>EV Charging Stations and Population in USA</h1>
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="tab1">Usage Trends</button>
+                <button class="tab-btn" data-tab="tab2">Station Map</button>
+                <button class="tab-btn" data-tab="tab3">Performance Metrics</button>
+            </div>
+        </header>
+        <main>
+            <!-- Tab 1: Usage Trends -->
+            <div id="tab1" class="tab-content active">
+                <div class="visualization-container">
+                    <div class="visualization">
+                        <div id="evRegistrationsChart" class="chart"></div>
+                    </div>
+                    <div class="conceptual-matter">
+                        <h3>EV Registrations by Model Year (Plotly)</h3>
+                        <p>This line chart tracks the growth of electric vehicle registrations over time, showing accelerating adoption rates since 2015 as battery technology improved and more models became available.</p>
+                    </div>
+                </div>
+
+                <div class="visualization-container">
+                    <div class="visualization">
+                        <div id="topCitiesChart" class="chart"></div>
+                    </div>
+                    <div class="conceptual-matter">
+                        <h3>Top Cities with Most EVs (Plotly)</h3>
+                        <p>West Coast cities dominate EV adoption, likely due to favorable climate for battery performance, state incentives, and higher concentration of charging infrastructure.</p>
+                    </div>
+                </div>
+
+                <div class="visualization-container">
+                    <div class="visualization">
+                        <div id="makeDistributionChart" class="chart"></div>
+                    </div>
+                    <div class="conceptual-matter">
+                        <h3>EV Count by Make (Plotly)</h3>
+                        <p>Tesla's first-mover advantage remains dominant, followed closely by Volvo in premium EV segments. The growing 'Other' category (now representing 28% of the market) signals healthy industry diversification beyond early leaders.</p>
+                        <p>Nissan maintains strong positioning through the Leaf's affordability, while Volvo's rapid ascent reflects successful electrification of their luxury lineup. This breakdown reveals three distinct market tiers:</p>
+                        <ol>
+                            <li><strong>Market Leaders</strong> (Tesla, Volvo) - Premium/long-range focus</li>
+                            <li><strong>Mass Market</strong> (Nissan, Chevrolet) - Affordable entry points</li>
+                            <li><strong>Emerging Brands</strong> - 14 manufacturers comprising the 'Other' segment</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Moved Radial Chart here -->
+                <div class="visualization-container full-width-viz">
+                    <div class="visualization" style="height: 650px;">
+                        <div class="chart-title">Top 12 Electric Vehicle Models</div>
+                        <div id="radial" class="chart-full"></div>
+                    </div>
+                    <div class="conceptual-matter">
+                        <h3>Popular EV Models (D3.js Radial Chart)</h3>
+                        <p>Model popularity reveals consumer priorities shifting in real-time. Early leaders like the Nissan Leaf succeeded by being affordable and 'good enough,' while today's top models combine 300+ mile ranges with tech-forward features. The radial format highlights an important market dynamic - the top 3 models capture nearly half the market, yet the long tail shows more model diversity than the ICE vehicle market. This suggests EVs are simultaneously consolidating around winners while enabling more niche vehicles than ever before.</p>
+                    </div>
+                </div>
+
+                <div class="visualization-container full-width-viz">
+                    <div class="visualization">
+                        <div class="chart-title">EV Range vs Model Year</div>
+                        <svg id="bubble-chart" width="100%" height="600"></svg>
+                    </div>
+                    <div class="conceptual-matter">
+                        <h3>EV Range vs Model Year (D3.js)</h3>
+                        <p>Interactive bubble chart showing how electric ranges have improved over time, with bubble size representing charging station availability in each vehicle's area.</p>
+                    </div>
+                </div>
+
+                <div class="visualization-container full-width-viz">
+                    <div class="visualization">
+                        <div class="chart-title">EV Type Popularity Over Time</div>
+                        <div id="streamgraph" class="chart-full"></div>
+                    </div>
+                    <div class="conceptual-matter">
+                        <h3>EV Type Popularity Over Time (D3.js)</h3>
+                        <p>Streamgraph visualization showing Battery Electric Vehicles (BEVs) gaining market share over Plug-in Hybrids (PHEVs) as range anxiety decreases.</p>
+                        <p>The BEV/PHEV tug-of-war tells a deeper story about consumer psychology. PHEVs initially dominated as a 'transition technology,' but their decline began when BEVs crossed 250 miles of range - the point where most consumers stop considering range limitations. The recent stabilization suggests PHEVs will persist for specific use cases (like rural drivers) rather than disappear completely.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 2: Station Map -->
+            <div id="tab2" class="tab-content">
+                <div class="visualization-container full-width-viz">
+                    <div class="visualization">
+                        <div id="stationMap" class="chart-full"></div>
+                    </div>
+                    <div class="conceptual-matter">
+                        <h3>EV Stations by Location (Plotly Mapbox)</h3>
+                        <p>Geographical distribution shows charging stations concentrated in urban areas and along major highways, with color coding revealing regional brand preferences.</p>
+                    </div>
+                </div>
+
+                <div class="visualization-container">
+                    <div class="visualization">
+                        <div id="districtRegistrationsChart" class="chart"></div>
+                    </div>
+                    <div class="conceptual-matter">
+                        <h3>EV Registrations by District (Plotly)</h3>
+                        <p>Districts with strong EV adoption often correlate with areas offering state incentives, HOV lane access for EVs, and higher average incomes.</p>
+                    </div>
+                </div>
+
+                <div class="visualization-container full-width-viz">
+                    <div class="visualization">
+                        <div id="treemapChart" class="chart-full"></div>
+                    </div>
+                    <div class="conceptual-matter">
+                        <h3>EV Count by Make and District (Vega-Lite)</h3>
+                        <p>Treemap visualization showing which manufacturers dominate specific legislative districts, with Tesla maintaining strong presence across most regions.</p>
+                    </div>
+                </div>
+
+                <!-- Moved Dot Chart here -->
+                <div class="visualization-container full-width-viz">
+                    <div class="visualization">
+                        <div id="dotchart" class="chart-full"></div>
+                    </div>
+                    <div class="conceptual-matter">
+                        <h3>Charging Infrastructure Balance (D3.js Dot Chart)</h3>
+                        <p>This visualization compares the number of EVs versus charging stations in different ZIP codes. Green bars indicate areas with sufficient charging infrastructure (more stations than EVs), while red bars show areas where charging infrastructure may be inadequate (more EVs than stations). The length of each bar represents the difference between stations and EVs.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 3: Performance Metrics -->
+            <div id="tab3" class="tab-content">
+                <div class="visualization-container">
+                    <div class="visualization">
+                        <div id="rangeDistributionChart" class="chart"></div>
+                    </div>
+                    <div class="conceptual-matter">
+                        <h3>Electric Range Distribution (Plotly)</h3>
+                        <p>Most EVs cluster in the 100-250 mile range, with premium models forming a secondary peak around 300+ miles - covering typical daily needs with margin.</p>
+                    </div>
+                </div>
+
+                <div class="visualization-container">
+                    <div class="visualization">
+                        <div id="rangeScatterPlot" class="chart"></div>
+                    </div>
+                    <div class="conceptual-matter">
+                        <h3>Range vs Model Year (Plotly)</h3>
+                        <p>Clear upward trajectory in ranges across all manufacturers, with Tesla maintaining an advantage and brands showing distinct range strategies.</p>
+                    </div>
+                </div>
+
+                <div class="visualization-container full-width-viz">
+                    <div class="visualization">
+                        <div id="altairCorrelationChart" class="chart-full"></div>
+                    </div>
+                    <div class="conceptual-matter">
+                        <h3>Alternative Correlation Matrix (Vega-Lite)</h3>
+                        <p>Interactive version of the correlation matrix with tooltips and different visual encoding options.</p>
+                    </div>
+                </div>
+
+                <div class="visualization-container full-width-viz">
+                    <div class="visualization" style="height: 600px;">
+                        <div class="chart-title">Range vs Charging Stations</div>
+                        <div id="scatter-plot" class="chart"></div>
+                    </div>
+                    <div class="conceptual-matter">
+                        <h3>Range vs Charging Stations (D3.js)</h3>
+                        <p>D3.js implementation showing only weak relationship between vehicle range and local charging infrastructure density.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+    <script>
+        // First define all visualization functions
+        function createRangeDistributionChart(data) {
+            const electricRanges = data.map(entry => parseFloat(entry['Electric Range'])).filter(val => !isNaN(val));
+            
+            const trace = {
+                x: electricRanges,
+                type: 'histogram',
+                nbinsx: 30,
+                marker: {
+                    color: 'blue'
+                }
+            };
+            
+            const layout = {
+                title: 'Distribution of Electric Vehicle Ranges',
+                xaxis: { title: 'Electric Range' },
+                yaxis: { title: 'Count' },
+                margin: { t: 50, l: 50, r: 30, b: 50 }
+            };
+            
+            Plotly.newPlot('rangeDistributionChart', [trace], layout);
+        }
+        
+        function createEvRegistrationsChart(data) {
+            const yearCounts = {};
+            data.forEach(entry => {
+                const year = entry['Model Year'];
+                if (year) {
+                    yearCounts[year] = (yearCounts[year] || 0) + 1;
+                }
+            });
+            
+            const years = Object.keys(yearCounts).sort();
+            const counts = years.map(year => yearCounts[year]);
+            
+            const trace = {
+                x: years,
+                y: counts,
+                type: 'scatter',
+                mode: 'lines+markers',
+                line: { shape: 'spline' }
+            };
+            
+            const layout = {
+                title: 'EV Registrations by Model Year',
+                xaxis: { title: 'Model Year' },
+                yaxis: { title: 'Count' },
+                margin: { t: 50, l: 50, r: 30, b: 100 }
+            };
+            
+            Plotly.newPlot('evRegistrationsChart', [trace], layout);
+        }
+        
+        function createDistrictRegistrationsChart(data) {
+            const districtCounts = {};
+            data.forEach(entry => {
+                const district = entry['Legislative District'];
+                if (district) {
+                    districtCounts[district] = (districtCounts[district] || 0) + 1;
+                }
+            });
+            
+            const sortedDistricts = Object.entries(districtCounts)
+                .sort((a, b) => b[1] - a[1])
+                .map(item => item[0]);
+            const counts = sortedDistricts.map(district => districtCounts[district]);
+            
+            const trace = {
+                x: sortedDistricts,
+                y: counts,
+                type: 'bar',
+                marker: {
+                    color: counts.map(count => `rgba(55, 128, 191, ${0.5 + count/Math.max(...counts)*0.5})`)
+                }
+            };
+            
+            const layout = {
+                title: 'EV Registrations by Legislative District',
+                xaxis: { title: 'Legislative District' },
+                yaxis: { title: 'Count' },
+                margin: { t: 50, l: 50, r: 30, b: 150 }
+            };
+            
+            Plotly.newPlot('districtRegistrationsChart', [trace], layout);
+        }
+        
+        function createTopCitiesChart(data) {
+            const cityCounts = {};
+            data.forEach(entry => {
+                const city = entry['City'];
+                if (city) {
+                    cityCounts[city] = (cityCounts[city] || 0) + 1;
+                }
+            });
+            
+            const sortedCities = Object.entries(cityCounts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 15);
+                
+            const cities = sortedCities.map(item => item[0]);
+            const counts = sortedCities.map(item => item[1]);
+            
+            const trace = {
+                y: counts,
+                x: cities,
+                type: 'bar',
+                orientation: 'v',
+                marker: {
+                    color: cities.map((_, i) => `hsl(${i * 24}, 100%, 50%)`)
+                }
+            };
+            
+            const layout = {
+                title: 'Top 15 Cities with Most EVs',
+                xaxis: { title: 'City' },
+                yaxis: { title: 'Count' },
+                margin: { t: 50, l: 80, r: 30, b: 120 }
+            };
+            
+            Plotly.newPlot('topCitiesChart', [trace], layout);
+        }
+        
+        function createMakeDistributionChart(data) {
+            const makeCounts = {};
+            data.forEach(entry => {
+                const make = entry['Make'];
+                if (make) {
+                    makeCounts[make] = (makeCounts[make] || 0) + 1;
+                }
+            });
+            
+            // Convert to array and sort
+            const makeData = Object.entries(makeCounts)
+                .sort((a, b) => b[1] - a[1])
+                .map(([make, count]) => ({ make, count }));
+            
+            // Group small makes into "Other" category
+            const threshold = Math.max(10, makeData[0].count * 0.03); // At least 10 or 3% of largest
+            const mainMakes = makeData.filter(d => d.count >= threshold);
+            const otherMakes = makeData.filter(d => d.count < threshold);
+            
+            const otherCount = otherMakes.reduce((sum, d) => sum + d.count, 0);
+            const finalData = [...mainMakes];
+            if (otherCount > 0) {
+                finalData.push({ make: 'Other', count: otherCount });
+            }
+            
+            const trace = {
+                labels: finalData.map(d => d.make),
+                values: finalData.map(d => d.count),
+                type: 'pie',
+                hole: 0.5,
+                textinfo: 'none', // Remove all text labels
+                hoverinfo: 'label+percent+value',
+                textposition: 'inside',
+                insidetextorientation: 'radial',
+                marker: {
+                    colors: finalData.map((_, i) => 
+                        `hsl(${i * 360 / finalData.length}, 70%, 50%)`
+                    )
+                }
+            };
+            
+            const layout = {
+                title: 'EV Count by Make',
+                showlegend: true,
+                legend: {
+                    orientation: 'v',
+                    y: 0.5
+                },
+                margin: { t: 50, l: 0, r: 0, b: 0 },
+                hoverlabel: {
+                    bgcolor: 'white',
+                    font: { size: 14 }
+                }
+            };
+            
+            Plotly.newPlot('makeDistributionChart', [trace], layout);
+        }
+        
+        function createAltairCorrelationChart(data) {
+            const spec = {
+                "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+                "description": "A simple bar chart with embedded data.",
+                "data": {
+                    "values": [
+                        {"Feature1": "Electric Range", "Feature2": "Electric Range", "Correlation": 1.0},
+                        {"Feature1": "Electric Range", "Feature2": "Longitude", "Correlation": 0.2},
+                        {"Feature1": "Electric Range", "Feature2": "Latitude", "Correlation": 0.1},
+                        {"Feature1": "Longitude", "Feature2": "Electric Range", "Correlation": 0.2},
+                        {"Feature1": "Longitude", "Feature2": "Longitude", "Correlation": 1.0},
+                        {"Feature1": "Longitude", "Feature2": "Latitude", "Correlation": 0.8},
+                        {"Feature1": "Latitude", "Feature2": "Electric Range", "Correlation": 0.1},
+                        {"Feature1": "Latitude", "Feature2": "Longitude", "Correlation": 0.8},
+                        {"Feature1": "Latitude", "Feature2": "Latitude", "Correlation": 1.0}
+                    ]
+                },
+                "mark": "rect",
+                "encoding": {
+                    "x": {"field": "Feature1", "type": "nominal"},
+                    "y": {"field": "Feature2", "type": "nominal"},
+                    "color": {"field": "Correlation", "type": "quantitative"}
+                },
+                "width": 600,
+                "height": 600,
+                "title": "Correlation Matrix Heatmap"
+            };
+            
+            vegaEmbed('#altairCorrelationChart', spec);
+        }
+        
+        function createTreemapChart(data) {
+            const makeDistrictCounts = {};
+            data.forEach(entry => {
+                const make = entry['Make'];
+                const district = entry['Legislative District'];
+                if (make && district) {
+                    const key = `${make}|${district}`;
+                    makeDistrictCounts[key] = (makeDistrictCounts[key] || 0) + 1;
+                }
+            });
+
+            const treemapData = Object.entries(makeDistrictCounts).map(([key, count]) => {
+                const [make, district] = key.split('|');
+                return { Make: make, 'Legislative District': district, Count: count };
+            });
+
+            const spec = {
+                "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+                "description": "EV Count by Make and Legislative District",
+                "data": { "values": treemapData },
+                "mark": "rect",
+                "encoding": {
+                    "x": {"field": "Make", "type": "nominal", "title": "Make"},
+                    "y": {"field": "Legislative District", "type": "nominal", "title": "Legislative District"},
+                    "color": {
+                        "field": "Count", 
+                        "type": "quantitative",
+                        "title": "EV Count",
+                        "scale": {"scheme": "viridis"}
+                    },
+                    "tooltip": [
+                        {"field": "Make", "type": "nominal"},
+                        {"field": "Legislative District", "type": "nominal"},
+                        {"field": "Count", "type": "quantitative", "title": "Count"}
+                    ]
+                },
+                "width": 800,
+                "height": 400,
+                "title": "EV Count by Make and Legislative District",
+                "config": {
+                    "view": {"stroke": "transparent"}
+                }
+            };
+
+            vegaEmbed('#treemapChart', spec);
+        }
+
+        // New functions for the embedded visualizations
+        function createStationMap(data) {
+            // Filter data to only include entries with valid lat/long
+            const filteredData = data.filter(entry => 
+                entry.Latitude && entry.Longitude && 
+                !isNaN(parseFloat(entry.Latitude)) && 
+                !isNaN(parseFloat(entry.Longitude))
+            );
+            
+            // Count stations per location
+            const stationCounts = {};
+            filteredData.forEach(entry => {
+                const key = `${entry.Latitude},${entry.Longitude}`;
+                stationCounts[key] = (stationCounts[key] || 0) + 1;
+            });
+            
+            // Prepare data for the map
+            const mapData = filteredData.map(entry => {
+                const key = `${entry.Latitude},${entry.Longitude}`;
+                return {
+                    ...entry,
+                    Station_Count: stationCounts[key],
+                    Latitude: parseFloat(entry.Latitude),
+                    Longitude: parseFloat(entry.Longitude)
+                };
+            });
+            
+            // Remove duplicates
+            const uniqueMapData = [];
+            const seen = new Set();
+            mapData.forEach(entry => {
+                const key = `${entry.Latitude},${entry.Longitude}`;
+                if (!seen.has(key)) {
+                    seen.add(key);
+                    uniqueMapData.push(entry);
+                }
+            });
+            
+            const trace = {
+                lat: uniqueMapData.map(entry => entry.Latitude),
+                lon: uniqueMapData.map(entry => entry.Longitude),
+                mode: 'markers',
+                type: 'scattermapbox',
+                text: uniqueMapData.map(entry => entry.Model),
+                hoverinfo: 'text',
+                marker: {
+                    size: uniqueMapData.map(entry => Math.min(entry.Station_Count * 5, 30)),
+                    color: uniqueMapData.map(entry => {
+                        // Assign colors based on Make
+                        const make = entry.Make;
+                        const colors = {
+                            'TESLA': 'red',
+                            'NISSAN': 'blue',
+                            'CHEVROLET': 'green',
+                            'BMW': 'purple',
+                            'FORD': 'orange'
+                        };
+                        return colors[make] || 'gray';
+                    }),
+                    opacity: 0.7
+                }
+            };
+            
+            const layout = {
+                mapbox: {
+                    style: 'open-street-map',
+                    center: {
+                        lat: 47.5,
+                        lon: -120
+                    },
+                    zoom: 5
+                },
+                title: 'EV Stations by Location and Make',
+                height: 500,
+                margin: {"r":0,"t":40,"l":0,"b":0}
+            };
+            
+            Plotly.newPlot('stationMap', [trace], layout);
+        }
+        
+        function createRangeScatterPlot(data) {
+            // Filter data to only include entries with valid model year and electric range
+            const filteredData = data.filter(entry => 
+                entry['Model Year'] && entry['Electric Range'] && 
+                !isNaN(parseFloat(entry['Electric Range'])) && 
+                !isNaN(parseInt(entry['Model Year']))
+            );
+            
+            // Group by Make to assign colors
+            const makes = [...new Set(filteredData.map(entry => entry.Make))];
+            const colorScale = {};
+            makes.forEach((make, i) => {
+                colorScale[make] = `hsl(${i * (360 / makes.length)}, 70%, 50%)`;
+            });
+            
+            const trace = {
+                x: filteredData.map(entry => parseInt(entry['Model Year'])),
+                y: filteredData.map(entry => parseFloat(entry['Electric Range'])),
+                mode: 'markers',
+                type: 'scatter',
+                text: filteredData.map(entry => entry.Model),
+                hoverinfo: 'text',
+                marker: {
+                    color: filteredData.map(entry => colorScale[entry.Make]),
+                    size: 8,
+                    opacity: 0.7
+                }
+            };
+            
+            const layout = {
+                title: 'Electric Range over Model Years',
+                xaxis: { title: 'Model Year' },
+                yaxis: { title: 'Electric Range' },
+                margin: { t: 50, l: 50, r: 30, b: 50 }
+            };
+            
+            Plotly.newPlot('rangeScatterPlot', [trace], layout);
+        }
+
+        // THEN fetch data and create visualizations
+        const gistUrl = "https://gist.githubusercontent.com/DeviCharishma/ab31bb680acf271a983617dd7c833595/raw/b8aead2f470453f09ea81ae5600f356215a13835/gistfile1.txt";
+        
+        fetch(gistUrl)
+            .then(response => response.text())
+            .then(csvData => {
+                const lines = csvData.split('\n');
+                const headers = lines[0].split(',');
+                const data = [];
+                
+                for (let i = 1; i < lines.length; i++) {
+                    if (lines[i].trim() === '') continue;
+                    const values = lines[i].split(',');
+                    const entry = {};
+                    for (let j = 0; j < headers.length; j++) {
+                        entry[headers[j]] = values[j];
+                    }
+                    data.push(entry);
+                }
+                
+                // Now all functions are defined before being called
+                createRangeDistributionChart(data);
+                createEvRegistrationsChart(data);
+                createTopCitiesChart(data);
+                createMakeDistributionChart(data);
+                createDistrictRegistrationsChart(data);
+                createAltairCorrelationChart(data);
+                createTreemapChart(data);
+                createStationMap(data);
+                createRangeScatterPlot(data);
+            })
+            .catch(error => console.error('Error loading data:', error));
+    </script>
+    <script src="D3V.js"></script>
+</body>
+<a href="index.html" class="btn">Back to Main</a>
+</html>

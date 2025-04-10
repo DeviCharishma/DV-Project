@@ -1,0 +1,272 @@
+/* Basic Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body with Background Image */
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    padding: 20px;
+    background-image: url('Electrric-vehicle.webp');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-color: rgba(255, 255, 255, 0.9);
+    background-blend-mode: multiply;
+    min-height: 100vh;
+}
+
+/* Main Container */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Header Styles */
+header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: rgba(76, 175, 80, 0.1);
+    border-radius: 8px;
+}
+
+h1 {
+    margin-bottom: 20px;
+    color: #2c3e50;
+}
+
+h3 {
+    color: #4CAF50;
+    margin: 15px 0;
+}
+
+/* Tab Styles */
+.tabs {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+.tab-btn {
+    padding: 10px 20px;
+    background: #f0f0f0;
+    border: none;
+    cursor: pointer;
+    margin: 5px;
+    transition: all 0.3s ease;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.tab-btn:hover {
+    background: #ddd;
+}
+
+.tab-btn.active {
+    background: #4CAF50;
+    color: white;
+}
+
+/* Tab Content */
+.tab-content {
+    display: none;
+    width: 100%;
+    padding: 20px 0;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Visualization Containers */
+.visualization-container {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    width: 100%;
+}
+
+.visualization {
+    flex: 1;
+    min-width: 60%;
+    padding: 15px;
+}
+
+.conceptual-matter {
+    flex: 1;
+    min-width: 300px;
+    padding: 20px;
+    background: #f9f9f9;
+    border-left: 1px solid #eee;
+}
+
+.conceptual-matter h3 {
+    color: #4CAF50;
+    margin-bottom: 15px;
+}
+
+.conceptual-matter p {
+    color: #555;
+    line-height: 1.6;
+}
+
+/* Full-width Variant */
+.full-width-viz .visualization {
+    min-width: 100%;
+}
+
+.full-width-viz .conceptual-matter {
+    border-left: none;
+    border-top: 1px solid #eee;
+}
+
+/* Chart Sizing */
+.chart {
+    width: 100%;
+    height: 400px;
+}
+
+.chart-full {
+    width: 100%;
+    height: 500px;
+}
+
+/* Button Styles */
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background: #4CAF50;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    margin-top: 20px;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 900px) {
+    .visualization-container {
+        flex-direction: column;
+    }
+    
+    .visualization, 
+    .conceptual-matter {
+        min-width: 100%;
+    }
+    
+    .conceptual-matter {
+        border-left: none;
+        border-top: 1px solid #eee;
+    }
+    
+    .tab-content {
+        padding: 10px 0;
+    }
+    
+    .chart, .chart-full {
+        height: 300px;
+    }
+}
+
+/* Ensure D3/SVG charts don't overflow */
+svg {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+#bubble-chart {
+    width: 100%;
+    overflow: visible;
+    margin: 20px 0;
+}
+
+#bubble-chart svg {
+    display: block;
+    margin: 0 auto;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    overflow: visible;
+}
+
+.grid line {
+    stroke: #eee;
+    stroke-dasharray: 2,2;
+}
+
+.tooltip {
+    position: absolute;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    pointer-events: none;
+    font-size: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+/* Radial Chart Styles */
+#radial {
+    width: 100%;
+    margin: 0 auto;
+    text-align: center;
+}
+
+#radial svg {
+    display: block;
+    margin: 0 auto;
+}
+
+/* Dot Chart Styles */
+#dotchart {
+    width: 100%;
+    margin: 0 auto;
+}
+
+#dotchart svg {
+    display: block;
+    margin: 0 auto;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.bar:hover {
+    opacity: 0.8;
+}
+
+.chart-title {
+    text-align: center;
+    font-family: 'Segoe UI', sans-serif;
+    color: #0c0c0cda;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
