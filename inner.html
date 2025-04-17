@@ -26,10 +26,10 @@
         <div id="tab1" class="tab-content active">
           <div class="visualization-container">
             <div class="visualization">
-              <div id="evRegistrationsChart" class="chart"></div>
+              <div id="altairEvRegistrationsChart" class="chart"></div>
             </div>
             <div class="conceptual-matter">
-              <h3>EV Registrations by Model Year (Plotly)</h3>
+              <h3>EV Registrations by Model Year (Altair)</h3>
               <p>
                 This line chart tracks the growth of electric vehicle
                 registrations over time, showing accelerating adoption rates
@@ -298,35 +298,39 @@
         Plotly.newPlot("rangeDistributionChart", [trace], layout);
       }
 
-      function createEvRegistrationsChart(data) {
-        const yearCounts = {};
-        data.forEach((entry) => {
-          const year = entry["Model Year"];
-          if (year) {
-            yearCounts[year] = (yearCounts[year] || 0) + 1;
-          }
-        });
+      function createAltairEvRegistrationsChart(data) {
+  const yearCounts = {};
+  data.forEach((entry) => {
+    const year = entry["Model Year"];
+    if (year) {
+      yearCounts[year] = (yearCounts[year] || 0) + 1;
+    }
+  });
 
-        const years = Object.keys(yearCounts).sort();
-        const counts = years.map((year) => yearCounts[year]);
+  const chartData = Object.keys(yearCounts)
+    .map((year) => ({
+      "Model Year": year,
+      "Count": yearCounts[year],
+    }))
+    .sort((a, b) => a["Model Year"] - b["Model Year"]);
 
-        const trace = {
-          x: years,
-          y: counts,
-          type: "scatter",
-          mode: "lines+markers",
-          line: { shape: "spline" },
-        };
+  const spec = {
+    $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+    title: "EV Registrations by Model Year",
+    data: { values: chartData },
+    mark: { type: "line", point: true },
+    encoding: {
+      x: { field: "Model Year", type: "ordinal", axis: { title: "Model Year" } },
+      y: { field: "Count", type: "quantitative", axis: { title: "Count" } },
+      tooltip: [{ field: "Model Year" }, { field: "Count" }],
+    },
+    width: 600,
+    height: 400,
+  };
 
-        const layout = {
-          title: "EV Registrations by Model Year",
-          xaxis: { title: "Model Year" },
-          yaxis: { title: "Count" },
-          margin: { t: 50, l: 50, r: 30, b: 100 },
-        };
+  vegaEmbed("#altairEvRegistrationsChart", spec);
+}
 
-        Plotly.newPlot("evRegistrationsChart", [trace], layout);
-      }
 
       function createDistrictRegistrationsChart(data) {
         const districtCounts = {};
@@ -722,7 +726,7 @@
 
           // all functions are defined before being called
           createRangeDistributionChart(data);
-          createEvRegistrationsChart(data);
+          createAltairEvRegistrationsChart(data);
           createTopCitiesChart(data);
           createMakeDistributionChart(data);
           createDistrictRegistrationsChart(data);
