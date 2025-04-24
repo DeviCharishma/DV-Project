@@ -448,9 +448,10 @@
           type: "pie",
           hole: 0.5,
           textinfo: "none",
-          hoverinfo: "label+percent+value",
-          textposition: "inside",
-          insidetextorientation: "radial",
+          hovertemplate:
+            "<b>%{label}</b><br>" +
+            "EV Count: %{value}<br>" +
+            "Percentage of Total: %{percent}<extra></extra>", // Clear labeling
           marker: {
             colors: finalData.map(
               (_, i) => `hsl(${(i * 360) / finalData.length}, 70%, 50%)`
