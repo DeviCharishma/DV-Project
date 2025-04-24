@@ -629,31 +629,33 @@
           colorScale[make] = `hsl(${i * (360 / makes.length)}, 70%, 50%)`;
         });
 
-        const trace = {
-          x: filteredData.map((entry) => parseInt(entry["Model Year"])),
-          y: filteredData.map((entry) => parseFloat(entry["Electric Range"])),
-          mode: "markers",
-          type: "scatter",
-          text: filteredData.map(
-            (entry) =>
-              `Make: ${entry.Make}<br>Model: ${entry.Model}<br>Year: ${entry["Model Year"]}<br>Range: ${entry["Electric Range"]} mi`
-          ),
-          hoverinfo: "text",
-          marker: {
-            color: filteredData.map((entry) => colorScale[entry.Make]),
-            size: 8,
-            opacity: 0.7,
-          },
-        };
+        const traces = makes.map((make) => {
+          const entries = filteredData.filter((entry) => entry.Make === make);
+          return {
+            x: entries.map((entry) => parseInt(entry["Model Year"])),
+            y: entries.map((entry) => parseFloat(entry["Electric Range"])),
+            mode: "markers",
+            type: "scatter",
+            name: make,
+            marker: { color: colorScale[make], size: 8, opacity: 0.7 },
+            text: entries.map(
+              (entry) =>
+                `Make: ${entry.Make}<br>Model: ${entry.Model}<br>Year: ${entry["Model Year"]}<br>Range: ${entry["Electric Range"]} mi`
+            ),
+            hoverinfo: "text",
+          };
+        });
 
         const layout = {
           title: "Electric Range over Model Years",
           xaxis: { title: "Model Year" },
           yaxis: { title: "Electric Range" },
-          margin: { t: 50, l: 50, r: 30, b: 50 },
+          hovermode: "closest", // Fix hover to only the closest point
+          legend: { title: { text: "Make" } },
+          margin: { t: 50, l: 60, r: 30, b: 50 },
         };
 
-        Plotly.newPlot("rangeScatterPlot", [trace], layout);
+        Plotly.newPlot("rangeScatterPlot", traces, layout);
       }
 
       // fetch data and create visualizations
