@@ -1,300 +1,134 @@
-(function drawScatterPlot() {
-  const margin = { top: 20, right: 200, bottom: 50, left: 60 },
-    width = 900 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
-
-  // SVG setup
-  const svg = d3
-    .select("#scatter-plot")
-    .append("svg")
-    .attr("width", width + margin.left + margin.right + 100)
-    .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-    .attr("transform", `translate(${margin.left},${margin.top})`);
-
-  // Tooltip
-  const tooltip = d3.select("body").append("div").attr("class", "tooltip");
-
-  // Load the data
-  d3.csv(
-    "https://gist.githubusercontent.com/bhavya3377/7072aedab4c27686b1c74f9441d24c3a/raw/8f22358cf97178c4b9fafadb0a9c13acd96cfb90/Electric_vehicle_charging_station_merge.csv"
-  )
-    .then((data) => {
-      // Prepare the data
-      data.forEach((d) => {
-        d["Electric Range"] = +d["Electric Range"];
-        d["Station_Count"] = +d["Station_Count"];
-      });
-
-      // Color scale by Make
-      const color = d3
-        .scaleOrdinal()
-        .domain([...new Set(data.map((d) => d.Make))])
-        .range(d3.schemeCategory10);
-
-      // X and Y scales
-      const x = d3
-        .scaleLinear()
-        .domain([0, d3.max(data, (d) => d["Electric Range"])])
-        .range([0, width]);
-
-      const y = d3
-        .scaleLinear()
-        .domain([0, d3.max(data, (d) => d["Station_Count"])])
-        .range([height, 0]);
-
-      // Axes
-      svg
-        .append("g")
-        .attr("transform", `translate(0,${height})`)
-        .call(d3.axisBottom(x));
-
-      svg.append("g").call(d3.axisLeft(y));
-
-      // Axis labels
-      svg
-        .append("text")
-        .attr("x", width / 2)
-        .attr("y", height + 40)
-        .attr("text-anchor", "middle")
-        .text("Electric Range (miles)");
-
-      svg
-        .append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", -40)
-        .attr("x", -height / 2)
-        .attr("text-anchor", "middle")
-        .text("Number of Charging Stations");
-
-      // Dots
-      svg
-        .selectAll("circle")
-        .data(data)
-        .enter()
-        .append("circle")
-        .attr("cx", (d) => x(d["Electric Range"]))
-        .attr("cy", (d) => y(d["Station_Count"]))
-        .attr("r", 5)
-        .style("fill", (d) => color(d.Make))
-        .style("opacity", 0.7)
-        .on("mouseover", (event, d) => {
-          tooltip.transition().duration(200).style("opacity", 1);
-          tooltip
-            .html(
-              `
-                <strong>${d.Make} ${d.Model}</strong><br>
-                Range: ${d["Electric Range"]} mi<br>
-                Stations: ${d["Station_Count"]}
-              `
-            )
-            .style("left", event.pageX + 10 + "px")
-            .style("top", event.pageY - 40 + "px");
-        })
-        .on("mouseout", () => {
-          tooltip.transition().duration(200).style("opacity", 0);
-        });
-
-      // Legend
-      const legend = svg
-        .append("g")
-        .attr("transform", `translate(${width + 20}, 0)`);
-
-      const makes = color.domain().slice(0, 10); // Top 10 for space
-
-      legend
-        .selectAll(".legend-item")
-        .data(makes)
-        .enter()
-        .append("g")
-        .attr("class", "legend-item")
-        .attr("transform", (d, i) => `translate(0, ${i * 20})`)
-        .call((g) => {
-          g.append("rect")
-            .attr("x", 0)
-            .attr("width", 14)
-            .attr("height", 14)
-            .attr("fill", (d) => color(d));
-
-          g.append("text")
-            .attr("x", 20)
-            .attr("y", 9)
-            .attr("dy", "0.35em")
-            .text((d) => d);
-        });
-    })
-    .catch((error) => {
-      console.error("Error loading the data:", error);
-    });
-})();
-
 (function drawBubbleChart() {
-  // Set up dimensions with more margin space
-  const margin = { top: 30, right: 100, bottom: 80, left: 250 };
-  const width = 1000 - margin.left - margin.right;
-  const height = 600 - margin.top - margin.bottom;
+  const svg = d3.select("#bubble-chart")
+                .append("svg")
+                .attr("width", 960)
+                .attr("height", 600);
 
-  // Create SVG with proper viewBox
-  const svg = d3
-    .select("#bubble-chart")
-    .append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-    .attr(
-      "viewBox",
-      `0 0 ${width + margin.left + margin.right} ${
-        height + margin.top + margin.bottom
-      }`
-    )
-    .append("g")
-    .attr("transform", `translate(${margin.left},${margin.top})`);
+  const width = +svg.attr("width"),
+        height = +svg.attr("height");
 
-  // Tooltip setup
-  const tooltip = d3
-    .select("body")
-    .append("div")
-    .attr("class", "tooltip")
-    .style("opacity", 0);
+  const margin = { top: 50, right: 200, bottom: 60, left: 80 },
+        innerWidth = width - margin.left - margin.right,
+        innerHeight = height - margin.top - margin.bottom;
 
-  // Load and prepare data
-  d3.csv(
-    "https://gist.githubusercontent.com/bhavya3377/7072aedab4c27686b1c74f9441d24c3a/raw/8f22358cf97178c4b9fafadb0a9c13acd96cfb90/Electric_vehicle_charging_station_merge.csv"
-  )
-    .then((data) => {
-      // Clean and transform data
-      data = data.filter(
-        (d) => d["Electric Range"] && d["Model Year"] && d["Station_Count"]
-      );
-      data.forEach((d) => {
-        d.ModelYear = +d["Model Year"];
-        d.Range = +d["Electric Range"];
-        d.Stations = +d["Station_Count"];
-        d.Type = d["E.V_Type"] || "Unknown";
-        d.Make = d.Make || "Unknown";
+  const chart = svg.append("g")
+                   .attr("transform", `translate(${margin.left},${margin.top})`);
 
-        // Add jitter to prevent overlap
+  const tooltip = d3.select("body")
+                    .append("div")
+                    .attr("class", "tooltip")
+                    .style("opacity", 0);
+
+  d3.csv("https://gist.githubusercontent.com/bhavya3377/7072aedab4c27686b1c74f9441d24c3a/raw/8f22358cf97178c4b9fafadb0a9c13acd96cfb90/Electric_vehicle_charging_station_merge.csv")
+    .then(data => {
+      data = data.filter(d => d['Electric Range'] && d['Model Year'] && d['Station_Count']);
+      data = data.slice(0, 400); // Limit data points
+
+      data.forEach(d => {
+        d.ModelYear = +d['Model Year'];
+        d.Range = +d['Electric Range'];
+        d.Stations = Math.min(+d['Station_Count'], 50); // Cap outliers
+        d.Type = d['E.V_Type'];
+        d.Make = d.Make || "";
+        d.Model = d.Model || "";
+
         d.jitterX = d.ModelYear + (Math.random() - 0.5) * 0.5;
         d.jitterY = d.Range + (Math.random() - 0.5) * 10;
       });
 
-      // Set up scales with padding
-      const x = d3
-        .scaleLinear()
-        .domain([
-          d3.min(data, (d) => d.jitterX) - 1,
-          d3.max(data, (d) => d.jitterX) + 1,
-        ])
-        .range([0, width]);
+      const x = d3.scaleLinear()
+                  .domain(d3.extent(data, d => d.jitterX)).nice()
+                  .range([0, innerWidth]);
 
-      const y = d3
-        .scaleLinear()
-        .domain([0, d3.max(data, (d) => d.jitterY) * 1.1])
-        .range([height, 0]);
+      const y = d3.scaleLinear()
+                  .domain([0, d3.max(data, d => d.jitterY)]).nice()
+                  .range([innerHeight, 0]);
 
-      const r = d3
-        .scaleSqrt()
-        .domain([0, d3.max(data, (d) => d.Stations)])
-        .range([5, 25]); // Adjusted bubble size range
+      const r = d3.scaleSqrt()
+                  .domain([0, d3.max(data, d => d.Stations)])
+                  .range([4, 18]);
 
-      // Color scale
-      const color = d3
-        .scaleOrdinal()
-        .domain(["BEV", "PHEV", "Other"])
-        .range(["#1f77b4", "#ff7f0e", "#2ca02c"]);
+      const color = d3.scaleOrdinal(d3.schemeTableau10);
 
-      // Add grid lines
-      svg
-        .append("g")
-        .attr("class", "grid")
-        .attr("transform", `translate(0,${height})`)
-        .call(d3.axisBottom(x).tickSize(-height).tickFormat(""));
+      chart.append("g")
+           .attr("transform", `translate(0,${innerHeight})`)
+           .call(d3.axisBottom(x).tickFormat(d3.format("d")));
 
-      svg
-        .append("g")
-        .attr("class", "grid")
-        .call(d3.axisLeft(y).tickSize(-width).tickFormat(""));
+      chart.append("g")
+           .call(d3.axisLeft(y));
 
-      // Add axes
-      svg
-        .append("g")
-        .attr("transform", `translate(0,${height})`)
-        .call(d3.axisBottom(x).tickFormat(d3.format("d")));
+      chart.append("g")
+           .attr("class", "grid")
+           .attr("transform", `translate(0,${innerHeight})`)
+           .call(d3.axisBottom(x).ticks(5).tickSize(-innerHeight).tickFormat(""));
 
-      svg.append("g").call(d3.axisLeft(y));
+      chart.append("g")
+           .attr("class", "grid")
+           .call(d3.axisLeft(y).ticks(5).tickSize(-innerWidth).tickFormat(""));
 
-      // Add bubbles
-      svg
-        .selectAll("circle")
-        .data(data)
-        .enter()
-        .append("circle")
-        .attr("cx", (d) => x(d.jitterX))
-        .attr("cy", (d) => y(d.jitterY))
-        .attr("r", (d) => r(d.Stations))
-        .attr("fill", (d) => color(d.Type))
-        .attr("opacity", 0.7)
-        .on("mouseover", function (event, d) {
-          d3.select(this).attr("stroke", "#000").attr("stroke-width", 2);
-          tooltip.transition().duration(200).style("opacity", 0.9);
-          tooltip
-            .html(
-              `
-                            <strong>${d.Make} ${d.Model}</strong><br>
-                            Type: ${d.Type}<br>
-                            Year: ${d.ModelYear}<br>
-                            Range: ${d.Range} mi<br>
-                            Stations: ${d.Stations}
-                        `
-            )
-            .style("left", event.pageX + 10 + "px")
-            .style("top", event.pageY - 28 + "px");
-        })
-        .on("mouseout", function () {
-          d3.select(this).attr("stroke", "none");
-          tooltip.transition().duration(500).style("opacity", 0);
-        });
+      data.sort((a, b) => b.Stations - a.Stations);
 
-      // Add axis labels
-      svg
-        .append("text")
-        .attr("x", width / 2)
-        .attr("y", height + 50)
-        .attr("text-anchor", "middle")
-        .text("Model Year");
+      chart.selectAll("circle")
+           .data(data)
+           .enter()
+           .append("circle")
+           .attr("cx", d => x(d.jitterX))
+           .attr("cy", d => y(d.jitterY))
+           .attr("r", d => r(d.Stations))
+           .attr("fill", d => color(d.Type))
+           .attr("opacity", 0.7)
+           .on("mouseover", function (event, d) {
+              tooltip.transition().duration(200).style("opacity", 1);
+              tooltip.html(`
+                <strong>${d.Make} ${d.Model}</strong><br/>
+                Type: ${d.Type}<br/>
+                Year: ${d.ModelYear}<br/>
+                Range: ${d.Range} mi<br/>
+                Stations Nearby: ${d.Stations}
+              `)
+              .style("left", (event.pageX + 10) + "px")
+              .style("top", (event.pageY - 28) + "px");
+           })
+           .on("mouseout", function () {
+              tooltip.transition().duration(500).style("opacity", 0);
+           });
 
-      svg
-        .append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", -60)
-        .attr("x", -height / 2)
-        .attr("text-anchor", "middle")
-        .text("Electric Range (mi)");
+      svg.append("text")
+         .attr("x", width / 2)
+         .attr("y", height - 10)
+         .attr("text-anchor", "middle")
+         .style("font-size", "14px")
+         .text("Model Year");
 
-      // Add legend
-      const legend = svg
-        .append("g")
-        .attr("transform", `translate(${width + 20}, 20)`);
+      svg.append("text")
+         .attr("transform", "rotate(-90)")
+         .attr("x", -height / 2)
+         .attr("y", 20)
+         .attr("text-anchor", "middle")
+         .style("font-size", "14px")
+         .text("Electric Range (mi)");
 
-      const types = color.domain();
+      const types = [...new Set(data.map(d => d.Type))];
+      const legend = svg.append("g")
+                        .attr("transform", `translate(${width - 140}, 60)`);
+
       types.forEach((type, i) => {
-        legend
-          .append("circle")
-          .attr("cx", 0)
-          .attr("cy", i * 25)
-          .attr("r", 6)
-          .attr("fill", color(type));
+        legend.append("circle")
+              .attr("cx", 0)
+              .attr("cy", i * 25)
+              .attr("r", 6)
+              .attr("fill", color(type));
 
-        legend
-          .append("text")
-          .attr("x", 15)
-          .attr("y", i * 25 + 5)
-          .text(type)
-          .style("font-size", "12px")
-          .attr("alignment-baseline", "middle");
+        legend.append("text")
+              .attr("x", 12)
+              .attr("y", i * 25 + 5)
+              .text(type)
+              .style("font-size", "13px")
+              .attr("alignment-baseline", "middle");
       });
-    })
-    .catch((error) => console.error("Error loading data:", error));
+  });
 })();
+
 
 (function drawStreamgraph() {
   const margin = { top: 20, right: 30, bottom: 30, left: 40 },

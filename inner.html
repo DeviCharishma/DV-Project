@@ -165,12 +165,15 @@
             </div>
           </div>
 
-          <div class="visualization-container">
+          <div class="visualization-container full-width-viz">
             <div class="visualization">
-              <div id="districtRegistrationsChart" class="chart"></div>
+              <div
+                id="altairDistrictRegistrationsChart"
+                class="chart-full"
+              ></div>
             </div>
             <div class="conceptual-matter">
-              <h3>EV Registrations by District (Plotly)</h3>
+              <h3>EV Registrations by District (Altair)</h3>
               <p>
                 Districts with strong EV adoption often correlate with areas
                 offering state incentives, HOV lane access for EVs, and higher
@@ -181,29 +184,19 @@
 
           <div class="visualization-container full-width-viz">
             <div class="visualization">
-              <div id="treemapChart" class="chart-full"></div>
-            </div>
-            <div class="conceptual-matter">
-              <h3>EV Count by Make and District (Altair: Vega-Lite)</h3>
-              <p>
-                Heatmap visualization showing which manufacturers dominate
-                specific legislative districts, with Tesla maintaining strong
-                presence across most regions.
-              </p>
-            </div>
-          </div>
-
-          <div class="visualization-container full-width-viz">
-            <div class="visualization">
               <div id="barchart" class="chart-full"></div>
             </div>
             <div class="conceptual-matter">
-              <h3>Charging Infrastructure Balance (D3.js Horizontal Diverging Bar Chart)</h3>
+              <h3>
+                Charging Infrastructure Balance (D3.js Horizontal Diverging Bar
+                Chart)
+              </h3>
               <p>
                 This visualization compares the number of EVs versus charging
-                stations in different ZIP codes. Red bars show areas where charging infrastructure may be
-                inadequate (more EVs than stations). The length of each bar
-                represents the difference between stations and EVs.
+                stations in different ZIP codes. Red bars show areas where
+                charging infrastructure may be inadequate (more EVs than
+                stations). The length of each bar represents the difference
+                between stations and EVs.
               </p>
             </div>
           </div>
@@ -246,26 +239,12 @@
             <div class="conceptual-matter">
               <h3>EV Feature Correlation Matrix (Altair: Vega-Lite)</h3>
               <p>
-                This heatmap reveals key relationships between EV range and geographic distribution. 
-                The strongest correlation (Electric Range ↔ Latitude) suggests climate influences battery performance, 
-                while weaker longitude links may reflect charging infrastructure patterns. 
-                Notably, range shows minimal correlation with itself - a data quirk worth investigating.
-              </p>
-            </div>
-          </div>
-
-          <div class="visualization-container full-width-viz">
-            <div class="visualization" style="height: 600px">
-              <div class="chart-title">Range vs Charging Stations</div>
-              <div id="scatter-plot" class="chart"></div>
-            </div>
-            <div class="conceptual-matter">
-              <h3>Range vs Charging Stations (D3.js)</h3>
-              <p>
-                This visualization reveals two distinct EV market strategies: Tesla and Nissan form opposing clusters, 
-                with Teslas offering longer ranges regardless of local charging density, while Nissan's shorter-range vehicles concentrate near high-infrastructure areas. 
-                Most brands cluster in the 200-300 mile range, suggesting this is becoming the industry standard, 
-                with Rivian as a notable outlier prioritizing extreme range.
+                This heatmap reveals key relationships between EV range and
+                geographic distribution. The strongest correlation (Electric
+                Range ↔ Latitude) suggests climate influences battery
+                performance, while weaker longitude links may reflect charging
+                infrastructure patterns. Notably, range shows minimal
+                correlation with itself - a data quirk worth investigating.
               </p>
             </div>
           </div>
@@ -283,9 +262,8 @@
           x: electricRanges,
           type: "histogram",
           nbinsx: 30,
-          marker: {
-            color: "blue",
-          },
+          marker: { color: "blue" },
+          hovertemplate: "Electric Range: %{x}<br>Count: %{y}<extra></extra>",
         };
 
         const layout = {
@@ -299,40 +277,47 @@
       }
 
       function createAltairEvRegistrationsChart(data) {
-  const yearCounts = {};
-  data.forEach((entry) => {
-    const year = entry["Model Year"];
-    if (year) {
-      yearCounts[year] = (yearCounts[year] || 0) + 1;
-    }
-  });
+        const yearCounts = {};
+        data.forEach((entry) => {
+          const year = entry["Model Year"];
+          if (year) {
+            yearCounts[year] = (yearCounts[year] || 0) + 1;
+          }
+        });
 
-  const chartData = Object.keys(yearCounts)
-    .map((year) => ({
-      "Model Year": year,
-      "Count": yearCounts[year],
-    }))
-    .sort((a, b) => a["Model Year"] - b["Model Year"]);
+        const chartData = Object.keys(yearCounts)
+          .map((year) => ({
+            "Model Year": year,
+            Count: yearCounts[year],
+          }))
+          .sort((a, b) => a["Model Year"] - b["Model Year"]);
 
-  const spec = {
-    $schema: "https://vega.github.io/schema/vega-lite/v5.json",
-    title: "EV Registrations by Model Year",
-    data: { values: chartData },
-    mark: { type: "line", point: true },
-    encoding: {
-      x: { field: "Model Year", type: "ordinal", axis: { title: "Model Year" } },
-      y: { field: "Count", type: "quantitative", axis: { title: "Count" } },
-      tooltip: [{ field: "Model Year" }, { field: "Count" }],
-    },
-    width: 600,
-    height: 400,
-  };
+        const spec = {
+          $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+          title: "EV Registrations by Model Year",
+          data: { values: chartData },
+          mark: { type: "line", point: true },
+          encoding: {
+            x: {
+              field: "Model Year",
+              type: "ordinal",
+              axis: { title: "Model Year" },
+            },
+            y: {
+              field: "Count",
+              type: "quantitative",
+              axis: { title: "Count" },
+            },
+            tooltip: [{ field: "Model Year" }, { field: "Count" }],
+          },
+          width: 600,
+          height: 400,
+        };
 
-  vegaEmbed("#altairEvRegistrationsChart", spec);
-}
+        vegaEmbed("#altairEvRegistrationsChart", spec);
+      }
 
-
-      function createDistrictRegistrationsChart(data) {
+      function createAltairDistrictRegistrationsChart(data) {
         const districtCounts = {};
         data.forEach((entry) => {
           const district = entry["Legislative District"];
@@ -341,35 +326,57 @@
           }
         });
 
-        const sortedDistricts = Object.entries(districtCounts)
-          .sort((a, b) => b[1] - a[1])
-          .map((item) => item[0]);
-        const counts = sortedDistricts.map(
-          (district) => districtCounts[district]
-        );
+        const chartData = Object.keys(districtCounts)
+          .map((district) => ({
+            "Legislative District": district,
+            Count: districtCounts[district],
+          }))
+          .sort((a, b) => b.Count - a.Count);
 
-        const trace = {
-          x: sortedDistricts,
-          y: counts,
-          type: "bar",
-          marker: {
-            color: counts.map(
-              (count) =>
-                `rgba(55, 128, 191, ${
-                  0.5 + (count / Math.max(...counts)) * 0.5
-                })`
-            ),
+        const spec = {
+          $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+          title: {
+            text: "EV Registrations by Legislative District",
+            fontSize: 18,
+            anchor: "start",
+          },
+          data: { values: chartData },
+          mark: "bar",
+          encoding: {
+            x: {
+              field: "Legislative District",
+              type: "ordinal",
+              sort: "-y",
+              axis: {
+                title: "Legislative District",
+                labelAngle: -45,
+                labelFontSize: 12,
+                titleFontSize: 14,
+              },
+            },
+            y: {
+              field: "Count",
+              type: "quantitative",
+              title: "Number of EVs Registered",
+            },
+            color: {
+              field: "Count",
+              type: "quantitative",
+              scale: { scheme: "blues" },
+            },
+            tooltip: [
+              { field: "Legislative District", type: "ordinal" },
+              { field: "Count", type: "quantitative" },
+            ],
+          },
+          width: 1000,
+          height: 400,
+          config: {
+            view: { stroke: null },
           },
         };
 
-        const layout = {
-          title: "EV Registrations by Legislative District",
-          xaxis: { title: "Legislative District" },
-          yaxis: { title: "Count" },
-          margin: { t: 50, l: 50, r: 30, b: 150 },
-        };
-
-        Plotly.newPlot("districtRegistrationsChart", [trace], layout);
+        vegaEmbed("#altairDistrictRegistrationsChart", spec);
       }
 
       function createTopCitiesChart(data) {
@@ -396,6 +403,7 @@
           marker: {
             color: cities.map((_, i) => `hsl(${i * 24}, 100%, 50%)`),
           },
+          hovertemplate: "City: %{x}<br>Count: %{y}<extra></extra>",
         };
 
         const layout = {
@@ -403,6 +411,7 @@
           xaxis: { title: "City" },
           yaxis: { title: "Count" },
           margin: { t: 50, l: 80, r: 30, b: 120 },
+          showlegend: false,
         };
 
         Plotly.newPlot("topCitiesChart", [trace], layout);
@@ -469,7 +478,7 @@
       function createAltairCorrelationChart(data) {
         const spec = {
           $schema: "https://vega.github.io/schema/vega-lite/v5.json",
-          description: "A simple bar chart with embedded data.",
+          description: "Correlation Matrix Heatmap",
           data: {
             values: [
               {
@@ -512,6 +521,11 @@
             x: { field: "Feature1", type: "nominal" },
             y: { field: "Feature2", type: "nominal" },
             color: { field: "Correlation", type: "quantitative" },
+            tooltip: [
+              { field: "Feature1", type: "nominal" },
+              { field: "Feature2", type: "nominal" },
+              { field: "Correlation", type: "quantitative" },
+            ],
           },
           width: 600,
           height: 600,
@@ -521,66 +535,7 @@
         vegaEmbed("#altairCorrelationChart", spec);
       }
 
-      function createTreemapChart(data) {
-        const makeDistrictCounts = {};
-        data.forEach((entry) => {
-          const make = entry["Make"];
-          const district = entry["Legislative District"];
-          if (make && district) {
-            const key = `${make}|${district}`;
-            makeDistrictCounts[key] = (makeDistrictCounts[key] || 0) + 1;
-          }
-        });
-
-        const treemapData = Object.entries(makeDistrictCounts).map(
-          ([key, count]) => {
-            const [make, district] = key.split("|");
-            return {
-              Make: make,
-              "Legislative District": district,
-              Count: count,
-            };
-          }
-        );
-
-        const spec = {
-          $schema: "https://vega.github.io/schema/vega-lite/v5.json",
-          description: "EV Count by Make and Legislative District",
-          data: { values: treemapData },
-          mark: "rect",
-          encoding: {
-            x: { field: "Make", type: "nominal", title: "Make" },
-            y: {
-              field: "Legislative District",
-              type: "nominal",
-              title: "Legislative District",
-            },
-            color: {
-              field: "Count",
-              type: "quantitative",
-              title: "EV Count",
-              scale: { scheme: "viridis" },
-            },
-            tooltip: [
-              { field: "Make", type: "nominal" },
-              { field: "Legislative District", type: "nominal" },
-              { field: "Count", type: "quantitative", title: "Count" },
-            ],
-          },
-          width: 800,
-          height: 400,
-          title: "EV Count by Make and Legislative District",
-          config: {
-            view: { stroke: "transparent" },
-          },
-        };
-
-        vegaEmbed("#treemapChart", spec);
-      }
-
-      // New functions for the embedded visualizations
       function createStationMap(data) {
-        // Filter data to only include entries with valid lat/long
         const filteredData = data.filter(
           (entry) =>
             entry.Latitude &&
@@ -589,14 +544,12 @@
             !isNaN(parseFloat(entry.Longitude))
         );
 
-        // Count stations per location
         const stationCounts = {};
         filteredData.forEach((entry) => {
           const key = `${entry.Latitude},${entry.Longitude}`;
           stationCounts[key] = (stationCounts[key] || 0) + 1;
         });
 
-        // Prepare data for the map
         const mapData = filteredData.map((entry) => {
           const key = `${entry.Latitude},${entry.Longitude}`;
           return {
@@ -607,9 +560,8 @@
           };
         });
 
-        // Remove duplicates
-        const uniqueMapData = [];
         const seen = new Set();
+        const uniqueMapData = [];
         mapData.forEach((entry) => {
           const key = `${entry.Latitude},${entry.Longitude}`;
           if (!seen.has(key)) {
@@ -618,52 +570,50 @@
           }
         });
 
-        const trace = {
-          lat: uniqueMapData.map((entry) => entry.Latitude),
-          lon: uniqueMapData.map((entry) => entry.Longitude),
-          mode: "markers",
-          type: "scattermapbox",
-          text: uniqueMapData.map((entry) => entry.Model),
-          hoverinfo: "text",
-          marker: {
-            size: uniqueMapData.map((entry) =>
-              Math.min(entry.Station_Count * 5, 30)
-            ),
-            color: uniqueMapData.map((entry) => {
-              // Assign colors based on Make
-              const make = entry.Make;
-              const colors = {
-                TESLA: "red",
-                NISSAN: "blue",
-                CHEVROLET: "green",
-                BMW: "purple",
-                FORD: "orange",
-              };
-              return colors[make] || "gray";
-            }),
-            opacity: 0.7,
-          },
-        };
+        const makes = [...new Set(uniqueMapData.map((d) => d.Make))];
+        const colors = {};
+        makes.forEach((make, i) => {
+          colors[make] = `hsl(${(i * 360) / makes.length}, 70%, 50%)`;
+        });
+
+        const traces = makes.map((make) => {
+          const entries = uniqueMapData.filter((d) => d.Make === make);
+          return {
+            type: "scattermapbox",
+            mode: "markers",
+            name: make,
+            lat: entries.map((d) => d.Latitude),
+            lon: entries.map((d) => d.Longitude),
+            customdata: entries.map((d) => [d.Make, d.Model, d.Station_Count]),
+            marker: {
+              size: entries.map((d) => Math.min(d.Station_Count * 5, 30)),
+              color: colors[make],
+              opacity: 0.7,
+            },
+            hovertemplate:
+              "Make: %{customdata[0]}<br>Model: %{customdata[1]}<br>Stations Nearby: %{customdata[2]}<extra></extra>",
+          };
+        });
 
         const layout = {
           mapbox: {
             style: "open-street-map",
-            center: {
-              lat: 47.5,
-              lon: -120,
-            },
+            center: { lat: 47.5, lon: -120 },
             zoom: 5,
           },
           title: "EV Stations by Location and Make",
           height: 500,
           margin: { r: 0, t: 40, l: 0, b: 0 },
+          legend: {
+            title: { text: "Make" },
+            orientation: "v",
+          },
         };
 
-        Plotly.newPlot("stationMap", [trace], layout);
+        Plotly.newPlot("stationMap", traces, layout);
       }
 
       function createRangeScatterPlot(data) {
-        // Filter data to only include entries with valid model year and electric range
         const filteredData = data.filter(
           (entry) =>
             entry["Model Year"] &&
@@ -672,7 +622,6 @@
             !isNaN(parseInt(entry["Model Year"]))
         );
 
-        // Group by Make to assign colors
         const makes = [...new Set(filteredData.map((entry) => entry.Make))];
         const colorScale = {};
         makes.forEach((make, i) => {
@@ -684,7 +633,10 @@
           y: filteredData.map((entry) => parseFloat(entry["Electric Range"])),
           mode: "markers",
           type: "scatter",
-          text: filteredData.map((entry) => entry.Model),
+          text: filteredData.map(
+            (entry) =>
+              `Make: ${entry.Make}<br>Model: ${entry.Model}<br>Year: ${entry["Model Year"]}<br>Range: ${entry["Electric Range"]} mi`
+          ),
           hoverinfo: "text",
           marker: {
             color: filteredData.map((entry) => colorScale[entry.Make]),
@@ -729,9 +681,8 @@
           createAltairEvRegistrationsChart(data);
           createTopCitiesChart(data);
           createMakeDistributionChart(data);
-          createDistrictRegistrationsChart(data);
+          createAltairDistrictRegistrationsChart(data);
           createAltairCorrelationChart(data);
-          createTreemapChart(data);
           createStationMap(data);
           createRangeScatterPlot(data);
         })
