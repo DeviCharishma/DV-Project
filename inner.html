@@ -31,10 +31,7 @@
             <div class="conceptual-matter">
               <h3>EV Registrations by Model Year (Altair)</h3>
               <p>
-                This line chart tracks the growth of electric vehicle
-                registrations over time, showing accelerating adoption rates
-                since 2015 as battery technology improved and more models became
-                available.
+                This line chart illustrates the growth of electric vehicle (EV) registrations by model year from 1997 to 2024. The data shows a steady increase until around 2015, after which the growth accelerates significantly. By 2024, registrations peaked at 1,805 vehicles, reflecting wider EV adoption driven by advances in technology, increased model availability, and supportive policies. The use of a line chart effectively highlights the upward trend and the sharp increase in recent years.
               </p>
             </div>
           </div>
@@ -173,8 +170,19 @@
             <div class="conceptual-matter">
               <h3>EV Registrations by District (Altair)</h3>
               <p>
-                This bar chart shows the distribution of EV registrations across legislative districts. The data is sorted in descending order, highlighting District 41 as the leader with 878 EVs registered. A blue color gradient represents the count of registrations, with darker shades indicating higher values.</p> 
-                <p>This visualization makes it easy to compare adoption rates between districts and reveals that a small number of districts account for the majority of EV registrations. Such patterns often correlate with factors like higher income levels, state incentives, and EV-friendly infrastructure.</p>
+                This bar chart shows the distribution of EV registrations across
+                legislative districts. The data is sorted in descending order,
+                highlighting District 41 as the leader with 878 EVs registered.
+                A blue color gradient represents the count of registrations,
+                with darker shades indicating higher values.
+              </p>
+              <p>
+                This visualization makes it easy to compare adoption rates
+                between districts and reveals that a small number of districts
+                account for the majority of EV registrations. Such patterns
+                often correlate with factors like higher income levels, state
+                incentives, and EV-friendly infrastructure.
+              </p>
             </div>
           </div>
 
@@ -273,46 +281,46 @@
       }
 
       function createAltairEvRegistrationsChart(data) {
-  const yearCounts = {};
-  data.forEach((entry) => {
-    const year = entry["Model Year"];
-    if (year && +year <= 2024) {  // Only up to year 2024
-      yearCounts[year] = (yearCounts[year] || 0) + 1;
-    }
-  });
+        const yearCounts = {};
+        data.forEach((entry) => {
+          const year = entry["Model Year"];
+          if (year && +year <= 2024) {
+            // Only up to year 2024
+            yearCounts[year] = (yearCounts[year] || 0) + 1;
+          }
+        });
 
-  const chartData = Object.keys(yearCounts)
-    .map((year) => ({
-      "Model Year": year,
-      Count: yearCounts[year],
-    }))
-    .sort((a, b) => a["Model Year"] - b["Model Year"]);
+        const chartData = Object.keys(yearCounts)
+          .map((year) => ({
+            "Model Year": year,
+            Count: yearCounts[year],
+          }))
+          .sort((a, b) => a["Model Year"] - b["Model Year"]);
 
-  const spec = {
-    $schema: "https://vega.github.io/schema/vega-lite/v5.json",
-    title: "EV Registrations by Model Year (Up to 2024)",
-    data: { values: chartData },
-    mark: { type: "line", point: true },
-    encoding: {
-      x: {
-        field: "Model Year",
-        type: "ordinal",
-        axis: { title: "Model Year" },
-      },
-      y: {
-        field: "Count",
-        type: "quantitative",
-        axis: { title: "Count" },
-      },
-      tooltip: [{ field: "Model Year" }, { field: "Count" }],
-    },
-    width: 600,
-    height: 400,
-  };
+        const spec = {
+          $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+          title: "EV Registrations by Model Year (Up to 2024)",
+          data: { values: chartData },
+          mark: { type: "line", point: true },
+          encoding: {
+            x: {
+              field: "Model Year",
+              type: "ordinal",
+              axis: { title: "Model Year" },
+            },
+            y: {
+              field: "Count",
+              type: "quantitative",
+              axis: { title: "Count" },
+            },
+            tooltip: [{ field: "Model Year" }, { field: "Count" }],
+          },
+          width: 600,
+          height: 400,
+        };
 
-  vegaEmbed("#altairEvRegistrationsChart", spec);
-}
-
+        vegaEmbed("#altairEvRegistrationsChart", spec);
+      }
 
       function createAltairDistrictRegistrationsChart(data) {
         const districtCounts = {};
