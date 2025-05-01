@@ -273,45 +273,46 @@
       }
 
       function createAltairEvRegistrationsChart(data) {
-        const yearCounts = {};
-        data.forEach((entry) => {
-          const year = entry["Model Year"];
-          if (year) {
-            yearCounts[year] = (yearCounts[year] || 0) + 1;
-          }
-        });
+  const yearCounts = {};
+  data.forEach((entry) => {
+    const year = entry["Model Year"];
+    if (year && +year <= 2024) {  // Only up to year 2024
+      yearCounts[year] = (yearCounts[year] || 0) + 1;
+    }
+  });
 
-        const chartData = Object.keys(yearCounts)
-          .map((year) => ({
-            "Model Year": year,
-            Count: yearCounts[year],
-          }))
-          .sort((a, b) => a["Model Year"] - b["Model Year"]);
+  const chartData = Object.keys(yearCounts)
+    .map((year) => ({
+      "Model Year": year,
+      Count: yearCounts[year],
+    }))
+    .sort((a, b) => a["Model Year"] - b["Model Year"]);
 
-        const spec = {
-          $schema: "https://vega.github.io/schema/vega-lite/v5.json",
-          title: "EV Registrations by Model Year",
-          data: { values: chartData },
-          mark: { type: "line", point: true },
-          encoding: {
-            x: {
-              field: "Model Year",
-              type: "ordinal",
-              axis: { title: "Model Year" },
-            },
-            y: {
-              field: "Count",
-              type: "quantitative",
-              axis: { title: "Count" },
-            },
-            tooltip: [{ field: "Model Year" }, { field: "Count" }],
-          },
-          width: 600,
-          height: 400,
-        };
+  const spec = {
+    $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+    title: "EV Registrations by Model Year (Up to 2024)",
+    data: { values: chartData },
+    mark: { type: "line", point: true },
+    encoding: {
+      x: {
+        field: "Model Year",
+        type: "ordinal",
+        axis: { title: "Model Year" },
+      },
+      y: {
+        field: "Count",
+        type: "quantitative",
+        axis: { title: "Count" },
+      },
+      tooltip: [{ field: "Model Year" }, { field: "Count" }],
+    },
+    width: 600,
+    height: 400,
+  };
 
-        vegaEmbed("#altairEvRegistrationsChart", spec);
-      }
+  vegaEmbed("#altairEvRegistrationsChart", spec);
+}
+
 
       function createAltairDistrictRegistrationsChart(data) {
         const districtCounts = {};
