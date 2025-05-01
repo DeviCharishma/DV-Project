@@ -1,132 +1,168 @@
 (function drawBubbleChart() {
   const svg = d3.select("#bubble-chart")
-                .append("svg")
-                .attr("width", 960)
-                .attr("height", 600);
+    .append("svg")
+    .attr("width", 960)
+    .attr("height", 600);
 
   const width = +svg.attr("width"),
         height = +svg.attr("height");
 
-  const margin = { top: 50, right: 200, bottom: 60, left: 80 },
+  const margin = { top: 70, right: 250, bottom: 70, left: 90 },
         innerWidth = width - margin.left - margin.right,
         innerHeight = height - margin.top - margin.bottom;
 
   const chart = svg.append("g")
-                   .attr("transform", `translate(${margin.left},${margin.top})`);
+    .attr("transform", `translate(${margin.left},${margin.top})`);
 
   const tooltip = d3.select("body")
-                    .append("div")
-                    .attr("class", "tooltip")
-                    .style("opacity", 0);
+    .append("div")
+    .attr("class", "tooltip");
 
   d3.csv("https://gist.githubusercontent.com/bhavya3377/7072aedab4c27686b1c74f9441d24c3a/raw/8f22358cf97178c4b9fafadb0a9c13acd96cfb90/Electric_vehicle_charging_station_merge.csv")
     .then(data => {
-      data = data.filter(d => d['Electric Range'] && d['Model Year'] && d['Station_Count']);
-      data = data.slice(0, 400); // Limit data points
+      data = data.filter(d =>
+        d['Electric Range'] && d['Model Year'] && d['Station_Count']
+      );
 
       data.forEach(d => {
         d.ModelYear = +d['Model Year'];
         d.Range = +d['Electric Range'];
-        d.Stations = Math.min(+d['Station_Count'], 50); // Cap outliers
-        d.Type = d['E.V_Type'];
-        d.Make = d.Make || "";
-        d.Model = d.Model || "";
-
-        d.jitterX = d.ModelYear + (Math.random() - 0.5) * 0.5;
-        d.jitterY = d.Range + (Math.random() - 0.5) * 10;
+        d.Stations = +d['Station_Count'];
+        d.Type = d['E.V_Type'] || "Unknown";
+        d.Make = d.Make || "Unknown";
+        d.Model = d.Model || "Unknown";
       });
 
+      const grouped = d3.rollups(
+        data,
+        v => ({
+          Make: v[0].Make,
+          Model: v[0].Model,
+          Type: v[0].Type,
+          ModelYear: d3.mean(v, d => d.ModelYear),
+          Range: d3.mean(v, d => d.Range),
+          Stations: d3.sum(v, d => d.Stations)
+        }),
+        d => `${d.Make} ${d.Model} (${d['E.V_Type']})`
+      );
+
+      const summarized = grouped.map(([key, val]) => val);
+
+      const bev = summarized.filter(d => d.Type === "BEV")
+        .sort((a, b) => d3.descending(a.Stations, b.Stations))
+        .slice(0, 5);
+
+      const phev = summarized.filter(d => d.Type === "PHEV")
+        .sort((a, b) => d3.descending(a.Stations, b.Stations))
+        .slice(0, 5);
+
+      const top10 = bev.concat(phev);
+
       const x = d3.scaleLinear()
-                  .domain(d3.extent(data, d => d.jitterX)).nice()
-                  .range([0, innerWidth]);
+        .domain(d3.extent(top10, d => d.ModelYear)).nice()
+        .range([0, innerWidth]);
 
       const y = d3.scaleLinear()
-                  .domain([0, d3.max(data, d => d.jitterY)]).nice()
-                  .range([innerHeight, 0]);
+        .domain([d3.min(top10, d => d.Range) - 10, d3.max(top10, d => d.Range) + 10])
+        .range([innerHeight, 0]);
 
       const r = d3.scaleSqrt()
-                  .domain([0, d3.max(data, d => d.Stations)])
-                  .range([4, 18]);
+        .domain([0, d3.max(top10, d => d.Stations)])
+        .range([6, 30]);
 
-      const color = d3.scaleOrdinal(d3.schemeTableau10);
-
-      chart.append("g")
-           .attr("transform", `translate(0,${innerHeight})`)
-           .call(d3.axisBottom(x).tickFormat(d3.format("d")));
+      const color = d3.scaleOrdinal()
+        .domain(["BEV", "PHEV", "Unknown"])
+        .range(d3.schemeTableau10);
 
       chart.append("g")
-           .call(d3.axisLeft(y));
+        .attr("transform", `translate(0,${innerHeight})`)
+        .call(d3.axisBottom(x).tickFormat(d3.format("d")));
 
       chart.append("g")
-           .attr("class", "grid")
-           .attr("transform", `translate(0,${innerHeight})`)
-           .call(d3.axisBottom(x).ticks(5).tickSize(-innerHeight).tickFormat(""));
+        .call(d3.axisLeft(y));
 
-      chart.append("g")
-           .attr("class", "grid")
-           .call(d3.axisLeft(y).ticks(5).tickSize(-innerWidth).tickFormat(""));
+      chart.append("text")
+        .attr("class", "x-axis-label")
+        .attr("x", innerWidth / 2)
+        .attr("y", innerHeight + 45)
+        .attr("text-anchor", "middle")
+        .text("Model Year");
 
-      data.sort((a, b) => b.Stations - a.Stations);
+      chart.append("text")
+        .attr("class", "y-axis-label")
+        .attr("transform", "rotate(-90)")
+        .attr("x", -innerHeight / 2)
+        .attr("y", -60)
+        .attr("text-anchor", "middle")
+        .text("Electric Range (mi)");
+
+      svg.append("text")
+        .attr("class", "chart-title")
+        .attr("x", width / 2)
+        .attr("y", 30)
+        .attr("text-anchor", "middle")
+        .text("Top 5 BEV & PHEV Models by Station Count");
 
       chart.selectAll("circle")
-           .data(data)
-           .enter()
-           .append("circle")
-           .attr("cx", d => x(d.jitterX))
-           .attr("cy", d => y(d.jitterY))
-           .attr("r", d => r(d.Stations))
-           .attr("fill", d => color(d.Type))
-           .attr("opacity", 0.7)
-           .on("mouseover", function (event, d) {
-              tooltip.transition().duration(200).style("opacity", 1);
-              tooltip.html(`
-                <strong>${d.Make} ${d.Model}</strong><br/>
-                Type: ${d.Type}<br/>
-                Year: ${d.ModelYear}<br/>
-                Range: ${d.Range} mi<br/>
-                Stations Nearby: ${d.Stations}
-              `)
-              .style("left", (event.pageX + 10) + "px")
-              .style("top", (event.pageY - 28) + "px");
-           })
-           .on("mouseout", function () {
-              tooltip.transition().duration(500).style("opacity", 0);
-           });
+        .data(top10)
+        .enter()
+        .append("circle")
+        .attr("class", "bubble")
+        .attr("cx", d => x(d.ModelYear))
+        .attr("cy", d => y(d.Range))
+        .attr("r", d => r(d.Stations))
+        .attr("fill", d => color(d.Type))
+        .on("mouseover", function (event, d) {
+          d3.select(this).classed("highlighted", true);
+          tooltip.transition().duration(200).style("opacity", 1);
+          tooltip.html(`
+            <strong>${d.Make} ${d.Model}</strong><br/>
+            Type: ${d.Type}<br/>
+            Year: ${Math.round(d.ModelYear)}<br/>
+            Range: ${Math.round(d.Range)} mi<br/>
+            Stations: ${d.Stations}
+          `)
+          .style("left", (event.pageX + 15) + "px")
+          .style("top", (event.pageY - 40) + "px");
+        })
+        .on("mouseout", function () {
+          d3.select(this).classed("highlighted", false);
+          tooltip.transition().duration(300).style("opacity", 0);
+        });
 
-      svg.append("text")
-         .attr("x", width / 2)
-         .attr("y", height - 10)
-         .attr("text-anchor", "middle")
-         .style("font-size", "14px")
-         .text("Model Year");
-
-      svg.append("text")
-         .attr("transform", "rotate(-90)")
-         .attr("x", -height / 2)
-         .attr("y", 20)
-         .attr("text-anchor", "middle")
-         .style("font-size", "14px")
-         .text("Electric Range (mi)");
-
-      const types = [...new Set(data.map(d => d.Type))];
+      const types = [...new Set(top10.map(d => d.Type))];
       const legend = svg.append("g")
-                        .attr("transform", `translate(${width - 140}, 60)`);
+        .attr("class", "legend")
+        .attr("transform", `translate(${width - 180}, 70)`);
+
+      legend.append("text")
+        .attr("class", "legend-title")
+        .attr("x", 0)
+        .attr("y", -20)
+        .text("EV Type");
 
       types.forEach((type, i) => {
         legend.append("circle")
-              .attr("cx", 0)
-              .attr("cy", i * 25)
-              .attr("r", 6)
-              .attr("fill", color(type));
+          .attr("cx", 0)
+          .attr("cy", i * 25)
+          .attr("r", 6)
+          .attr("fill", color(type))
+          .attr("class", "legend-dot");
 
         legend.append("text")
-              .attr("x", 12)
-              .attr("y", i * 25 + 5)
-              .text(type)
-              .style("font-size", "13px")
-              .attr("alignment-baseline", "middle");
+          .attr("x", 12)
+          .attr("y", i * 25 + 5)
+          .text(type)
+          .attr("alignment-baseline", "middle")
+          .attr("class", "legend-label");
       });
-  });
+
+      legend.append("text")
+        .attr("x", 0)
+        .attr("y", types.length * 25 + 30)
+        .attr("class", "bubble-note")
+        .text("Bubble Size = # Charging Stations");
+    });
 })();
 
 
