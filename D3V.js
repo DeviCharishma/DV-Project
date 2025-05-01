@@ -167,7 +167,7 @@
 
 
 (function drawStreamgraph() {
-  const margin = { top: 20, right: 30, bottom: 30, left: 40 },
+  const margin = { top: 20, right: 120, bottom: 30, left: 40 },
     width = 960 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
@@ -188,16 +188,19 @@
     "https://gist.githubusercontent.com/bhavya3377/7072aedab4c27686b1c74f9441d24c3a/raw/8f22358cf97178c4b9fafadb0a9c13acd96cfb90/Electric_vehicle_charging_station_merge.csv"
   )
     .then((data) => {
+
       // Filter valid years
       const filtered = data.filter(
         (d) => d["Model Year"] && !isNaN(+d["Model Year"])
       );
+
       const years = Array.from(
         new Set(filtered.map((d) => +d["Model Year"]))
       ).sort();
-      const types = Array.from(new Set(filtered.map((d) => d["E.V_Type"])));
 
-      // Aggregate counts
+      const types = ["BEV", "PHEV"];
+
+      // Aggregate counts by year and type
       const nested = d3.rollup(
         filtered,
         (v) => v.length,
@@ -205,7 +208,7 @@
         (d) => d["E.V_Type"]
       );
 
-      // Convert to wide format
+      // Wide format dataset for stacking
       const dataset = years.map((year) => {
         const row = { Year: new Date(year, 0, 1) };
         types.forEach((type) => {
@@ -218,51 +221,47 @@
 
       // Stack layout
       const stack = d3.stack().keys(keys).offset(d3.stackOffsetSilhouette);
-
       const series = stack(dataset);
 
       // Scales
-      const x = d3
-        .scaleTime()
+      const x = d3.scaleTime()
         .domain(d3.extent(dataset, (d) => d.Year))
         .range([0, width]);
 
-      const y = d3
-        .scaleLinear()
+      const y = d3.scaleLinear()
         .domain([
           d3.min(series, (s) => d3.min(s, (d) => d[0])),
           d3.max(series, (s) => d3.max(s, (d) => d[1])),
         ])
         .range([height, 0]);
 
-      const color = d3.scaleOrdinal().domain(keys).range(d3.schemeTableau10);
+      const color = d3.scaleOrdinal()
+        .domain(keys)
+        .range(d3.schemeTableau10);
 
       // Area generator
-      const area = d3
-        .area()
+      const area = d3.area()
         .x((d) => x(d.data.Year))
         .y0((d) => y(d[0]))
         .y1((d) => y(d[1]))
         .curve(d3.curveBasis);
 
-      // Draw areas with fade-in animation
-      svg
-        .selectAll(".stream-path")
+      // Draw stream paths
+      svg.selectAll(".stream-path")
         .data(series)
         .enter()
         .append("path")
         .attr("class", "stream-path")
         .attr("fill", (d) => color(d.key))
         .attr("d", area)
-        .attr("opacity", 0) // ← Start transparent
+        .attr("opacity", 0)
         .transition()
         .duration(1000)
-        .delay((d, i) => i * 100) // ← Stagger each stream
-        .attr("opacity", 1); // ← Fade in
+        .delay((d, i) => i * 100)
+        .attr("opacity", 1);
 
       // Hover tooltip interactions
-      svg
-        .selectAll(".stream-path")
+      svg.selectAll(".stream-path")
         .on("mouseover", function (event, d) {
           d3.selectAll(".stream-path").style("opacity", 0.3);
           d3.select(this).style("opacity", 1);
@@ -276,10 +275,10 @@
 
           tooltip.transition().duration(200).style("opacity", 0.9);
           tooltip.html(`
-          <div class="tooltip-title">${d.key}</div>
-          <div class="tooltip-line"><strong>Model Year:</strong> ${hoveredYear}</div>
-          <div class="tooltip-line"><strong>Vehicle Count:</strong> ${count}</div>
-        `);
+            <div class="tooltip-title">${d.key}</div>
+            <div class="tooltip-line"><strong>Model Year:</strong> ${hoveredYear}</div>
+            <div class="tooltip-line"><strong>Vehicle Count:</strong> ${count}</div>
+          `);
           tooltip
             .style("left", `${event.pageX + 15}px`)
             .style("top", `${event.pageY - 40}px`);
@@ -290,13 +289,51 @@
         });
 
       // X-axis
-      svg
-        .append("g")
+      svg.append("g")
         .attr("transform", `translate(0,${height})`)
         .call(d3.axisBottom(x).tickFormat(d3.timeFormat("%Y")));
+
+      // Chart Title
+      svg.append("text")
+        .attr("x", width / 2)
+        .attr("y", -5)
+        .attr("text-anchor", "middle")
+        .style("font-size", "16px")
+        .style("font-weight", "bold")
+        .text("EV Type Popularity Over Time");
+
+      // ---------------------- Legend -----------------------
+      const legend = svg.append("g")
+        .attr("class", "legend")
+        .attr("transform", `translate(20, 20)`); // Top-left corner
+
+      legend.append("text")
+        .attr("class", "legend-title")
+        .attr("x", 0)
+        .attr("y", -10)
+        .text("EV Type");
+
+      keys.forEach((type, i) => {
+        legend.append("circle")
+          .attr("cx", 0)
+          .attr("cy", i * 25)
+          .attr("r", 6)
+          .attr("fill", color(type))
+          .attr("class", "legend-dot");
+
+        legend.append("text")
+          .attr("x", 12)
+          .attr("y", i * 25 + 5)
+          .text(type)
+          .attr("alignment-baseline", "middle")
+          .attr("class", "legend-label");
+      });
+
     })
     .catch((error) => console.error("Data load error:", error));
 })();
+
+
 
 // Radial Chart of EV Models
 (function drawRadialChart() {
